@@ -1,9 +1,9 @@
-import {IUser} from '@entities/User';
+import User from "../../src/entity/User";
 
 declare global {
     namespace Express {
         export interface Request {
-            user?: IUser;
+            user?: User;
             token?: string;
         }
     }

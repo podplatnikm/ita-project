@@ -1,35 +1,40 @@
 import {NextFunction, Request, Response} from 'express';
 import {BAD_REQUEST, CREATED, OK, UNPROCESSABLE_ENTITY} from 'http-status-codes';
-import User, {IUser} from '@entities/User';
 import {validationResult} from 'express-validator';
 import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
-import {badCredentials, emailNotUnique, loginOk, registrationOk} from '@shared/constants';
+import {badCredentials, emailNotUnique, loginOk, registrationOk, weakPassword} from '@shared/constants';
+import {User} from '../entity/User';
+import Validator from '../util/Validator';
 
 export async function signupAuth(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(UNPROCESSABLE_ENTITY).json({ errors: errors.array() });
+        return res.status(UNPROCESSABLE_ENTITY).json({errors: errors.array()});
     }
 
     try {
-        const {email, password, userName, firstName, lastName} = req.body;
-        const emailExists = await User.where({email: email.toLowerCase()}).count();
+        const {email, password, displayName, firstName, lastName} = req.body;
+        const emailExists = await User.find({email: email.toLowerCase()});
 
-        if (emailExists > 0) {
+        if (emailExists.length > 0) {
             return res.status(BAD_REQUEST).send({success: false, message: emailNotUnique});
         }
 
+        if (!await Validator.validatePasswordStrength(password)) {
+            return res.status(BAD_REQUEST).send({success: false, message: weakPassword});
+        }
+
         const hashedPassword = await bcrypt.hash(password, 8);
-        await User.forge({
-            email: email.toLowerCase().trim(),
-            password: hashedPassword,
-            userName: userName.trim(),
-            firstName: firstName?.trim(),
-            lastName: lastName?.trim(),
-            active: true,
-        }).save();
+        const user = new User();
+        user.email = email.toLowerCase().trim();
+        user.password = hashedPassword;
+        user.displayName = displayName.trim();
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.active = true;
+        await user.save();
 
         return res.status(CREATED).send({
             success: true,
@@ -49,7 +54,7 @@ export async function tokenAuth(req: Request, res: Response, next: NextFunction)
 
     try {
         const {email, password} = req.body;
-        const user: IUser = await User.findByCredentials(email, password);
+        const user: User | undefined = await User.findByCredentials(email, password);
 
         if (!user) {
             return res.status(BAD_REQUEST).send({

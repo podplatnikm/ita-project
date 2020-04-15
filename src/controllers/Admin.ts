@@ -1,5 +1,4 @@
 import {NextFunction, Request, Response} from 'express';
-import Account from '@entities/Account';
 import {validationResult} from 'express-validator';
 import {BAD_REQUEST, CREATED, NOT_FOUND, OK, UNPROCESSABLE_ENTITY} from 'http-status-codes';
 import {
@@ -10,8 +9,9 @@ import {
     userAlreadyAssignedRole,
     userNotExist
 } from '@shared/constants';
-import User from '@entities/User';
-import Membership, {IMembership} from '@entities/Membership';
+import {User} from '../entity/User';
+import {Membership} from '../entity/Membership';
+import {Account} from '../entity/Account';
 
 export async function addRole(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
@@ -21,30 +21,30 @@ export async function addRole(req: Request, res: Response, next: NextFunction) {
 
     try {
         const {user: userId, role} = req.body;
-        let account = await Account.where({name: role}).fetch({require: false});
+        const account = await Account.findOne({role});
 
         if (!account) {
             return res.status(NOT_FOUND).send({success: false, message: roleNotExist})
         }
-        account = account.toJSON();
 
-        let user = await User.where({id: userId}).fetch({withRelated: ['memberships'], require: false});
+        const user = await User.findOne({id: userId}, { relations: ['memberships']});
+        return res.send(user);
+
         if (!user) {
             return res.status(NOT_FOUND).send({success: false, message: userNotExist})
         }
-        user = user.toJSON();
 
-        const roleAlreadyAssigned = user.memberships!.some((membership: IMembership) => {
-            return membership.account_id === account.id
+        const roleAlreadyAssigned = user!.memberships!.some((membership: Membership) => {
+            return membership.accountId === account!.id
         });
         if (roleAlreadyAssigned) {
             return res.status(BAD_REQUEST).send({success: false, message: userAlreadyAssignedRole})
         }
 
-        await Membership.forge({
-            account_id: account.id,
-            user_id: user.id
-        }).save();
+        const newMembership = new Membership();
+        newMembership.account = account!;
+        newMembership.user = user!;
+        await newMembership.save();
 
         return res.status(CREATED).send({
             success: true,
@@ -63,19 +63,18 @@ export async function removeRole(req: Request, res: Response, next: NextFunction
 
     try {
         const {user: userId, role} = req.body;
-        let account = await Account.where({name: role}).fetch({require: false});
+        const account = await Account.findOne({role});
 
         if (!account) {
             return res.status(NOT_FOUND).send({success: false, message: roleNotExist})
         }
-        account = account.toJSON();
 
-        const membership = await Membership.where({user_id: userId, account_id: account.id}).fetch({require: false});
+        const membership = await Membership.findOne({userId, accountId: account.id});
         if(!membership){
             return res.status(NOT_FOUND).send({success: false, message: membershipNotExist})
         }
 
-        await membership.destroy();
+        await membership.remove();
         return res.status(OK).send({
             success: true,
             message: roleRemoved,

@@ -7,6 +7,8 @@ import 'express-async-errors';
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
 
+import './db/typeorm';
+
 
 // Init express
 const app = express();

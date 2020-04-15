@@ -9,3 +9,4 @@ export const membershipNotExist = 'Membership does not exist';
 export const userAlreadyAssignedRole = 'User has already been assigned provided role.';
 export const roleAssigned = 'Role assigned successfully';
 export const roleRemoved = 'Role removed successfully';
+export const weakPassword = 'Password is too weak. Should be between 6 and 20 characters.';

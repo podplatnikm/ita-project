@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from 'express';
-import {IMembership} from '@entities/Membership';
 import {UNAUTHORIZED} from 'http-status-codes';
+import {IMembership} from "../entity/Membership";
 
 export const adminAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {

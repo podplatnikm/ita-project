@@ -2,10 +2,7 @@
   "name": "vaja2",
   "version": "0.0.0",
   "scripts": {
-    "start:dev": "nodemon --config nodemon.json",
-    "knex:migrate:latest": "knex migrate:latest",
-    "knex:migrate:rollback": "knex migrate:rollback",
-    "knex:seed:run": "knex seed:run"
+    "start:dev": "nodemon --config nodemon.json"
   },
   "_moduleAliases": {
     "@daos": "dist/daos",
@@ -15,7 +12,6 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "bookshelf": "^1.1.1",
     "command-line-args": "^5.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -23,24 +19,24 @@
     "express-validator": "^6.4.0",
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.20.13",
     "lodash": "^4.17.15",
     "module-alias": "^2.2.2",
     "morgan": "^1.9.1",
-    "sqlite3": "^4.1.1",
+    "pg": "^8.0.2",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.24",
     "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "@types/bookshelf": "^1.0.0",
     "@types/command-line-args": "^5.0.0",
     "@types/express": "^4.17.3",
     "@types/express-jwt": "0.0.42",
     "@types/express-serve-static-core": "^4.17.2",
     "@types/jsonwebtoken": "^8.3.8",
+    "@types/lodash": "^4.14.149",
     "@types/morgan": "^1.9.0",
     "@types/node": "^13.9.2",
-    "@types/sqlite3": "^3.1.6",
     "fs-extra": "^8.1.0",
     "nodemon": "^2.0.2",
     "ts-node": "^8.7.0",
