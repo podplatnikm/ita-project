@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {User} from '../User';
+import {IUser} from '../User';
 
 function serialize(instance: any, fields: string[]) {
     if (Array.isArray(instance)) {
@@ -11,12 +11,12 @@ function serialize(instance: any, fields: string[]) {
     }
 }
 
-export function userRetrieveSerializer(user: User | User[]) {
-    const fields = ['id', 'email', 'displayName', 'firstName', 'lastName', 'active', 'memberships'];
+export function userRetrieveSerializer(user: IUser) {
+    const fields = ['id', 'email', 'displayName', 'firstName', 'lastName', 'active', 'membership'];
     return serialize(user, fields);
 }
 
-export function userListSerializer(user: User | User[]) {
-    const fields = ['email', 'userName', 'firstName', 'lastName'];
+export function userListSerializer(user: IUser[]) {
+    const fields = ['email', 'displayName', 'firstName', 'lastName'];
     return serialize(user, fields);
 }

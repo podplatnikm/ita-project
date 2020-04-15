@@ -1,12 +1,11 @@
 import {NextFunction, Request, Response} from 'express';
 import {BAD_REQUEST, CREATED, OK, UNPROCESSABLE_ENTITY} from 'http-status-codes';
 import {validationResult} from 'express-validator';
-import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import config from '../config/config';
-import {badCredentials, emailNotUnique, loginOk, registrationOk, weakPassword} from '@shared/constants';
-import {User} from '../entity/User';
+import {badCredentials, emailNotUnique, loginOk, registrationOk, weakPassword} from '../shared/constants';
 import Validator from '../util/Validator';
+import User from '../entity/User';
 
 export async function signupAuth(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
@@ -16,9 +15,9 @@ export async function signupAuth(req: Request, res: Response, next: NextFunction
 
     try {
         const {email, password, displayName, firstName, lastName} = req.body;
-        const emailExists = await User.find({email: email.toLowerCase()});
+        const emailExists = await User.countDocuments({email: email.toLowerCase()});
 
-        if (emailExists.length > 0) {
+        if (emailExists > 0) {
             return res.status(BAD_REQUEST).send({success: false, message: emailNotUnique});
         }
 
@@ -26,14 +25,16 @@ export async function signupAuth(req: Request, res: Response, next: NextFunction
             return res.status(BAD_REQUEST).send({success: false, message: weakPassword});
         }
 
-        const hashedPassword = await bcrypt.hash(password, 8);
-        const user = new User();
-        user.email = email.toLowerCase().trim();
-        user.password = hashedPassword;
-        user.displayName = displayName.trim();
-        user.firstName = firstName;
-        user.lastName = lastName;
-        user.active = true;
+        const user = new User({
+            email: email.toLowerCase().trim(),
+            password,
+            displayName: displayName.trim(),
+            firstName,
+            lastName,
+            membership: [{
+                role: 'user'
+            }]
+        });
         await user.save();
 
         return res.status(CREATED).send({
@@ -54,7 +55,7 @@ export async function tokenAuth(req: Request, res: Response, next: NextFunction)
 
     try {
         const {email, password} = req.body;
-        const user: User | undefined = await User.findByCredentials(email, password);
+        const user = await User.findByCredentials(email, password);
 
         if (!user) {
             return res.status(BAD_REQUEST).send({

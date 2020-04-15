@@ -7,11 +7,11 @@ import {
     roleNotExist,
     roleRemoved,
     userAlreadyAssignedRole,
-    userNotExist
-} from '@shared/constants';
-import {User} from '../entity/User';
-import {Membership} from '../entity/Membership';
-import {Account} from '../entity/Account';
+    userNotExist, userWithRoleNotFound
+} from '../shared/constants';
+import User from '../entity/User';
+
+const ROLES = ['user', 'restaurant', 'admin'];
 
 export async function addRole(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
@@ -21,30 +21,26 @@ export async function addRole(req: Request, res: Response, next: NextFunction) {
 
     try {
         const {user: userId, role} = req.body;
-        const account = await Account.findOne({role});
+        const roleExists = ROLES.includes(role);
 
-        if (!account) {
+        if (!roleExists) {
             return res.status(NOT_FOUND).send({success: false, message: roleNotExist})
         }
 
-        const user = await User.findOne({id: userId}, { relations: ['memberships']});
-        return res.send(user);
+        const user = await User.findOne({_id: userId});
 
         if (!user) {
             return res.status(NOT_FOUND).send({success: false, message: userNotExist})
         }
 
-        const roleAlreadyAssigned = user!.memberships!.some((membership: Membership) => {
-            return membership.accountId === account!.id
+        const roleAlreadyAssigned = user!.membership!.some((membership: any) => {
+            return membership.role === role
         });
         if (roleAlreadyAssigned) {
             return res.status(BAD_REQUEST).send({success: false, message: userAlreadyAssignedRole})
         }
 
-        const newMembership = new Membership();
-        newMembership.account = account!;
-        newMembership.user = user!;
-        await newMembership.save();
+        await User.findByIdAndUpdate(user._id, { '$push': { 'membership': { role } }});
 
         return res.status(CREATED).send({
             success: true,
@@ -63,18 +59,32 @@ export async function removeRole(req: Request, res: Response, next: NextFunction
 
     try {
         const {user: userId, role} = req.body;
-        const account = await Account.findOne({role});
+        const roleExists = ROLES.includes(role);
 
-        if (!account) {
+        if (!roleExists) {
             return res.status(NOT_FOUND).send({success: false, message: roleNotExist})
         }
 
-        const membership = await Membership.findOne({userId, accountId: account.id});
-        if(!membership){
-            return res.status(NOT_FOUND).send({success: false, message: membershipNotExist})
+        const user = await User.findOne({_id: userId});
+
+        if (!user) {
+            return res.status(NOT_FOUND).send({success: false, message: userNotExist})
         }
 
-        await membership.remove();
+        const roleAlreadyAssigned = user!.membership!.some((membership: any) => {
+            return membership.role === role
+        });
+
+        if (!roleAlreadyAssigned) {
+            return res.status(BAD_REQUEST).send({success: false, message: userWithRoleNotFound})
+        }
+
+        const memberships = user.membership.filter((membership: any) => {
+            return membership.role !== role;
+        });
+
+        await User.findByIdAndUpdate(user._id, { membership: memberships });
+
         return res.status(OK).send({
             success: true,
             message: roleRemoved,

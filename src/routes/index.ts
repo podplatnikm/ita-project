@@ -9,8 +9,7 @@ import {adminAuth} from '../middleware/adminAuth';
 const router = Router();
 
 router.use('/users', checkJwt, UserRouter);
-// router.use('/admin', checkJwt, adminAuth, AdminRouter);
-router.use('/admin', checkJwt, AdminRouter);
+router.use('/admin', checkJwt, adminAuth, AdminRouter);
 router.use('/auth', AuthRouter);
 
 export default router;

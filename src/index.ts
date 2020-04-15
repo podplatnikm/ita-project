@@ -1,8 +1,7 @@
 import './LoadEnv'; // Must be the first import
 import app from '@server';
-import logger from '@shared/Logger';
+import logger from './shared/Logger';
 import config from './config/config';
-import 'reflect-metadata';
 
 // Start the server
 const port = Number(config.port);

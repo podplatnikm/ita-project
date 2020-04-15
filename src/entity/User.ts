@@ -1,64 +1,100 @@
 import bcrypt from 'bcryptjs';
-import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique} from 'typeorm';
-import {IMembership, Membership} from './Membership';
+import { Document, Model, model, Schema } from 'mongoose'
+import validator from 'validator';
 
-export interface IUser {
-    id: number;
+const userSchema = new Schema({
+    displayName: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 3,
+        maxlength: 20,
+        unique: true
+    },
+    firstName: {
+        type: String,
+        trim: true,
+        maxlength: 20,
+        default: null,
+    },
+    lastName: {
+        type: String,
+        trim: true,
+        maxlength: 30,
+        default: null
+    },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        required: true,
+        unique: true,
+        validate: {
+            validator(value: string) {
+                return validator.isEmail(value);
+            },
+            message: props => `"${props.value}" is not a valid Email!`,
+        },
+        maxlength: 120,
+    },
+    password: {
+        type: String,
+        trim: true,
+        required: true,
+    },
+    active: {
+        type: Boolean,
+        default: true,
+    },
+    membership: [{
+        role: {
+            type: String,
+            enum: ['user', 'restaurant', 'admin'],
+            required: true
+        },
+    }]
+}, {
+    timestamps: true
+});
+
+export interface IUser extends Document{
     displayName: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     password: string;
     active: boolean;
-    memberships?: IMembership[]
+    membership: object[];
+}
+
+userSchema.statics.findByCredentials = async function(email: string, password: string) {
+    const User = this;
+
+    const user = await User.findOne({
+        email: email.toLowerCase()
+    });
+
+    if (!user) {
+        return null;
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return null;
+    }
+    return user;
+};
+
+export interface IUserModel extends Model<IUser> {
     findByCredentials(email: string, password: string): IUser | null;
 }
 
-@Entity()
-@Unique(['displayName'])
-@Unique(['email'])
-export class User extends BaseEntity implements IUser {
-
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column({
-        length: 20
-    })
-    displayName: string;
-
-    @Column({
-            length: 20, nullable: true
-        }
-    )
-    firstName: string;
-
-    @Column({
-        length: 30, nullable: true
-    })
-    lastName: string;
-
-    @Column()
-    email: string;
-
-    @Column()
-    password: string;
-
-    @Column()
-    active: boolean;
-
-    @OneToMany(type => Membership, membership => membership.user)
-    memberships: Membership[];
-
-    static async findByCredentials(email: string, password: string) {
-        const user : User | undefined = await this.findOne({email});
-        if (!user) {
-            return undefined;
-        }
-        const doesPasswordMatch = await bcrypt.compare(password, user.password);
-        if (!doesPasswordMatch) {
-            return undefined;
-        }
-        return user;
+// Document middlewares
+userSchema.pre<IUser>('save', async function(next) {
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 8);
     }
-}
+    next()
+});
+
+// Default export
+export default model<IUser, IUserModel>('User', userSchema);

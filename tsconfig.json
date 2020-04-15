@@ -19,15 +19,14 @@
       "@entities/*": [
         "src/entities/*"
       ],
-      "@shared/*": [
-        "src/shared/*"
-      ],
       "@server": [
         "src/Server"
       ]
     },
     "types": [
-      "node"
+      "node",
+      "mocha",
+      "chai"
     ],
     "typeRoots": [
       "@types",

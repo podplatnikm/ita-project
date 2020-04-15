@@ -4,7 +4,7 @@ import {body} from 'express-validator';
 
 const router = Router();
 
-router.post('/roles/add', [body('user').isInt(), body('role').isString()], addRole);
-router.post('/roles/remove', [body('user').isInt(), body('role').isString()], removeRole);
+router.post('/roles/add', [body('user').isString(), body('role').isString()], addRole);
+router.post('/roles/remove', [body('user').isString(), body('role').isString()], removeRole);
 
 export default router;

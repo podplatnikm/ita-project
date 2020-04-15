@@ -1,17 +1,17 @@
 import {NextFunction, Request, Response} from 'express';
 import {BAD_REQUEST, NO_CONTENT, OK} from 'http-status-codes';
-import {emailNotUnique, requestBodyInvalid} from '@shared/constants';
-import {User} from '../entity/User';
+import {emailNotUnique, requestBodyInvalid} from '../shared/constants';
+import User from '../entity/User';
 import {userListSerializer, userRetrieveSerializer} from '../entity/serializers/user';
 
 export function retrieveUser(req: Request, res: Response) {
-    const user = req.user!;
+    const user = (req as any).user;
     return res.status(OK).send(userRetrieveSerializer(user));
 }
 
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
     try {
-        let user = req.user!;
+        const user = (req as any).user;
         const updates = Object.keys(req.body);
 
         const allowedUpdates = ['email', 'displayName', 'firstName', 'lastName'];
@@ -21,13 +21,14 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
             return res.status(BAD_REQUEST).send({success: false, message: requestBodyInvalid});
         }
 
-        const emailExists = await User.findOne({email: req.body.email.toLowerCase()});
+        updates.forEach((update) => { user[update] = req.body[update]; });
+
+        const emailExists = await User.findOne({email: user.email.toLowerCase()});
         if (emailExists && emailExists.id !== user.id) {
             return res.status(BAD_REQUEST).send({success: false, message: emailNotUnique});
         }
 
-        await User.update({id: user.id}, req.body);
-        user = await User.findOne({id: user.id});
+        await user.save();
 
         return res.status(OK).send(userRetrieveSerializer(user));
     } catch (error) {
@@ -37,8 +38,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
-        const user = await User.findOne({id: req.user!.id});
-        await user!.remove();
+        await User.findByIdAndRemove((req as any).user._id);
         return res.status(NO_CONTENT).send();
     }catch (error) {
         return next(error)
