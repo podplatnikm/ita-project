@@ -15,3 +15,5 @@ export const newPasswordMismatch = 'The values for the new password you provided
 export const samePassword = 'New and old password are the same.';
 export const oldPasswordIncorrect = 'Old password does not match your current one.';
 export const passwordChanged = 'Successfully changed password';
+export const notOwner = 'You are not the owner/creator of this object';
+export const notFound = (model: string) => `${model} could not be found.`;

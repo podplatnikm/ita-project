@@ -29,7 +29,7 @@ describe('Registration', () => {
             password: 'testpassword',
         };
         const response = await request(app).post('/api/auth/sign-up').send(data);
-        expect(response.status).to.equal(UNPROCESSABLE_ENTITY);
+        expect(response.status).to.equal(BAD_REQUEST);
     });
     it('Should prevent double email (email should be unique)', async () => {
         const { user } = await loadRandomUser();

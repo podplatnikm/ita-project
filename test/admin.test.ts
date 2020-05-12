@@ -3,12 +3,12 @@ import { expect } from 'chai';
 import 'mocha';
 import {
     BAD_REQUEST,
-    CREATED, NOT_FOUND, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY,
+    CREATED, NOT_FOUND, OK, UNAUTHORIZED,
 } from 'http-status-codes';
 import app from '../src/Server';
 import { loadRandomUser, setupDatabase } from './fixtures/setup';
 import User from '../src/entity/User';
-import {roleNotExist, userAlreadyAssignedRole} from '../src/shared/constants';
+import { roleNotExist, userAlreadyAssignedRole } from '../src/shared/constants';
 
 beforeEach(setupDatabase);
 
@@ -53,7 +53,7 @@ describe('Roles toggle', () => {
                 .set('Authorization', `Bearer ${token}`)
                 .send();
 
-            expect(response.status).to.equal(UNPROCESSABLE_ENTITY);
+            expect(response.status).to.equal(BAD_REQUEST);
         });
         it('Should not add a duplicate role', async () => {
             const { user: userOne, token } = await loadRandomUser();
@@ -115,7 +115,7 @@ describe('Roles toggle', () => {
                 .set('Authorization', `Bearer ${token}`)
                 .send();
 
-            expect(response.status).to.equal(UNPROCESSABLE_ENTITY);
+            expect(response.status).to.equal(BAD_REQUEST);
         });
         it('Should only add a valid role', async () => {
             const { user: userOne, token } = await loadRandomUser();
