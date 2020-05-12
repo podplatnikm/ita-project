@@ -1,4 +1,4 @@
-import User from "../../src/entity/User";
+import User from '../../src/entity/User';
 
 declare global {
     namespace Express {

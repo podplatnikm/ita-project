@@ -1,12 +1,10 @@
-import {NextFunction, Request, Response} from 'express';
-import {UNAUTHORIZED} from 'http-status-codes';
+import { NextFunction, Request, Response } from 'express';
+import { UNAUTHORIZED } from 'http-status-codes';
 
 export const adminAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = (req as any).user!;
-        const isAdmin = user.membership!.some((membership: any) => {
-            return membership.role === 'admin'
-        });
+        const isAdmin = user.membership!.some((membership: any) => membership.role === 'admin');
         if (!isAdmin) {
             return res.status(UNAUTHORIZED).send();
         }

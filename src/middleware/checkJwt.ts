@@ -1,7 +1,7 @@
-import {Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { UNAUTHORIZED } from 'http-status-codes';
 import config from '../config/config';
-import {UNAUTHORIZED} from 'http-status-codes';
 import User from '../entity/User';
 
 

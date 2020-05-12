@@ -6,5 +6,5 @@ import config from './config/config';
 // Start the server
 const port = Number(config.port);
 app.listen(port, () => {
-    logger.info('Express server started on port: ' + port);
+    logger.info(`Express server started on port: ${port}`);
 });

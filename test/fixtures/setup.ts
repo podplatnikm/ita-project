@@ -1,5 +1,5 @@
-import User from '../../src/entity/User';
 import * as jwt from 'jsonwebtoken';
+import User from '../../src/entity/User';
 import config from '../../src/config/config';
 
 export async function setupDatabase() {
@@ -9,9 +9,12 @@ export async function setupDatabase() {
 export async function loadRandomUser() {
     const password = 'testpassword';
     const user = new User({
-        email: 'mitja.viler@gmail.com',
-        displayName: 'Rulo',
+        email: `mitja.viler.${Date.now()}@gmail.com`,
+        displayName: `Rulo.${Date.now()}`,
         password,
+        membership: [{
+            role: 'user',
+        }],
     });
 
     const token = jwt.sign({

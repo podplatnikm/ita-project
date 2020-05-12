@@ -1,7 +1,7 @@
-import {createLogger, format, transports} from 'winston';
+import { createLogger, format, transports } from 'winston';
 
 // Import Functions
-const {Console} = transports;
+const { Console } = transports;
 
 // Init Logger
 const logger = createLogger({

@@ -8,6 +8,7 @@ const config = {
         name: process.env.DB_NAME || 'ita-project',
         prefix: process.env.DB_PREFIX || 'mongodb+srv',
     },
+    googleClientId: '769533967657-673m9eh3gr2lq20ghh66hhs4tbl9q953.apps.googleusercontent.com',
 };
 
 export default config;
