@@ -25,7 +25,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
         const { user } = req as any;
         const updates = Object.keys(req.body);
 
-        const allowedUpdates = ['email', 'displayName', 'firstName', 'lastName', 'receivePushNotifications', 'hideEmail', 'hideMe', 'maxDistanceKm'];
+        const allowedUpdates = ['email', 'displayName', 'firstName', 'lastName',
+            'receivePushNotifications', 'hideEmail', 'hideMe', 'maxDistanceKm'];
         const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
         if (!isValidOperation) {

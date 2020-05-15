@@ -18,8 +18,14 @@ router.get('/me', retrieveUser);
 router.put('/me', updateUser);
 router.delete('/me', deleteUser);
 
-router.post('/me/favourites/add', [body('item').isString().isLength({ min: 3 })], checkValErr, addFavourite);
-router.post('/me/favourites/remove', [body('item').isString().isLength({ min: 3 })], checkValErr, removeFavourite);
+router.post('/me/favourites/add',
+    [body('item').isString().isLength({ min: 3 })],
+    checkValErr,
+    addFavourite);
+router.post('/me/favourites/remove',
+    [body('item').isString().isLength({ min: 3 })],
+    checkValErr,
+    removeFavourite);
 
 router.post('/me/password/change',
     [body('oldPassword').isString().isLength({ min: 6, max: 20 }),

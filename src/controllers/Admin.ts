@@ -28,7 +28,7 @@ export async function checkRole(req: Request, res: Response, next: NextFunction)
             return res.status(NOT_FOUND).send({ success: false, message: userNotExist });
         }
         (req as any).userObject = user;
-        next();
+        return next();
     } catch (error) {
         return next(error);
     }

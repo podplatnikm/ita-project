@@ -60,14 +60,6 @@ export async function tokenAuth(req: Request, res: Response, next: NextFunction)
 
         req.user = user;
         return next();
-        //
-        // const token = jwt.sign({
-        //     id: user.id,
-        //     iat: Math.floor(Date.now() / 1000) - 30,
-        //     exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 31 * 6),
-        // }, config.jwtSecret);
-        //
-        // return res.status(OK).send({ success: true, token, message: loginOk });
     } catch (error) {
         return next(error);
     }
