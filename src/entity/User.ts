@@ -126,7 +126,7 @@ export interface IUserModel extends Model<IUser> {
     findByCredentials(email: string, password: string): IUser | null;
 }
 
-// Document middlewares
+// Document middleware
 userSchema.pre<IUser>('save', async function (next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 8);

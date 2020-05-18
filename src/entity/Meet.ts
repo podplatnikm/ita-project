@@ -1,6 +1,7 @@
 import {
     model, Model, Schema, Document,
 } from 'mongoose';
+import { IUser } from './User';
 
 const meetSchema = new Schema({
     user: {
@@ -46,7 +47,7 @@ interface ILocation {
 export interface IMeet extends Document {
     _id: any;
     id: string;
-    user?: string | any;
+    user?: string | IUser;
     location: ILocation;
     locationName: string;
     datetime: Date;

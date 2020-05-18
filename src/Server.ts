@@ -1,6 +1,6 @@
 import morgan from 'morgan';
 import cors from 'cors';
-import express, { Request, Response } from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from 'http-status-codes';
 import 'express-async-errors';
 import passport from 'passport';
@@ -29,7 +29,7 @@ app.use(passport.initialize());
 app.use('/api', BaseRouter);
 
 // Print API errors
-app.use((err: Error, req: Request, res: Response) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     logger.error(err.message, err);
 
     const status = (err as any).status

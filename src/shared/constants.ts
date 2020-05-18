@@ -17,3 +17,5 @@ export const oldPasswordIncorrect = 'Old password does not match your current on
 export const passwordChanged = 'Successfully changed password';
 export const notOwner = 'You are not the owner/creator of this object';
 export const notFound = (model: string) => `${model} could not be found.`;
+export const meetStarted = 'This meet has already started thus you cannot request to join';
+export const meetAttendeeExists = 'You have already requested to join this meet.';
