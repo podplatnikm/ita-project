@@ -42,7 +42,7 @@ export async function addRole(req: Request, res: Response, next: NextFunction) {
         const roleAlreadyAssigned = userObject!
             .membership!
             .some((membership: any) => membership.role === role);
-        console.log('roleAlreadyAssigned', roleAlreadyAssigned);
+
         if (roleAlreadyAssigned) {
             return res.status(BAD_REQUEST).send(
                 { success: false, message: userAlreadyAssignedRole },

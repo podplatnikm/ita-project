@@ -34,6 +34,13 @@ const meetSchema = new Schema({
         type: String,
         required: false,
     },
+    totalParticipants: {
+        type: Number,
+        min: 1,
+        get: (v: any) => Math.round(v),
+        set: (v: any) => Math.round(v),
+        default: 1,
+    },
 }, {
     timestamps: true,
     minimize: false,
@@ -47,7 +54,7 @@ interface ILocation {
 export interface IMeet extends Document {
     _id: any;
     id: string;
-    user?: string | IUser;
+    user: string | IUser;
     location: ILocation;
     locationName: string;
     datetime: Date;
@@ -55,5 +62,9 @@ export interface IMeet extends Document {
 }
 
 export interface IMeetModel extends Model<IMeet> {}
+
+meetSchema.index({
+    location: '2dsphere',
+});
 
 export default model<IMeet, IMeetModel>('Meet', meetSchema);
