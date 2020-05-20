@@ -79,6 +79,7 @@ export async function geoSearchMeet(req: Request, res: Response, next: NextFunct
                         type: 'Point',
                         coordinates,
                     },
+                    maxDistance: 50000,
                     distanceField: 'distance',
                     spherical: true,
                 },
@@ -87,9 +88,9 @@ export async function geoSearchMeet(req: Request, res: Response, next: NextFunct
                     datetime: {
                         $gt: new Date(),
                     },
-                    // user: {
-                    //     $nin: [(req as any).user._id],
-                    // },
+                    user: {
+                        $nin: [(req as any).user._id],
+                    },
                 },
             },
         ]);
@@ -165,13 +166,12 @@ export async function createParticipation(req: Request, res: Response, next: Nex
     try {
         const { message } = req.body;
         const { id: meetId } = req.params;
-        const meet = await Meet.findById(meetId);
         const { user }: { user: IUser } = req as any;
 
+        const meet = await Meet.findById(meetId);
         if (!meet) {
             throw new NotFoundError(notFound('Meet'));
         }
-
         if (meet.user.toString() === user.id) {
             throw new PermissionDeniedError(cannotAddParticipationToOwnMeet);
         }
@@ -263,23 +263,20 @@ export async function vetoMeetAttendees(req: Request, res: Response, next: NextF
 
         const session = await mongoose.startSession();
         await session.withTransaction(async () => {
-            const promises = [];
-
             attendee.$session(session);
-            promises.push(attendee.save());
+            await attendee.save();
 
-            const eventUpdate = Event.updateMany(
+            await Event.updateMany(
                 { meet: meetId, attendee: attendeeId },
                 { actionRequired: false },
             ).session(session);
-            promises.push(eventUpdate);
 
             if (attendee.state === 'accepted' && oldState !== 'accepted') {
-                promises.push(Meet.findByIdAndUpdate(meet._id, {
+                await Meet.findByIdAndUpdate(meet._id, {
                     $inc: {
                         totalParticipants: 1,
                     },
-                }).session(session));
+                }).session(session);
                 const newEvent = new Event({
                     user: targetUser!._id,
                     meet: meet._id,
@@ -289,12 +286,9 @@ export async function vetoMeetAttendees(req: Request, res: Response, next: NextF
                     type: 'notification',
                 });
                 newEvent.$session(session);
-                promises.push(newEvent.save());
+                await newEvent.save();
             }
-
-            await Promise.all(promises);
         });
-
         return res.send(attendeeRetrieveSerializer(attendee));
     } catch (error) {
         return next(error);

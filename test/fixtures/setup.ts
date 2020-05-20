@@ -1,9 +1,20 @@
 import * as jwt from 'jsonwebtoken';
 import User from '../../src/entity/User';
 import config from '../../src/config/config';
+import Attendee from '../../src/entity/Attendee';
+import Meet from '../../src/entity/Meet';
+import Event from '../../src/entity/Event';
 
 export async function setupDatabase() {
     await User.deleteMany({});
+    await Meet.deleteMany({});
+    await Attendee.deleteMany({});
+    await Event.deleteMany({});
+
+    await User.createCollection();
+    await Meet.createCollection();
+    await Attendee.createCollection();
+    await Event.createCollection();
 }
 
 export async function loadRandomUser() {

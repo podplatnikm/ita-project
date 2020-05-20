@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {body, check} from 'express-validator';
+import { body } from 'express-validator';
 import {
     createMeet,
     deleteMeet,
