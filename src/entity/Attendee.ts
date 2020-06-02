@@ -3,6 +3,7 @@ import {
 } from 'mongoose';
 import { IUser } from './User';
 import { IMeet } from './Meet';
+import Event from './Event';
 
 export const states = ['pending', 'accepted', 'declined'];
 
@@ -45,5 +46,11 @@ export interface IAttendee extends Document {
 }
 
 export interface IAttendeeModel extends Model<IAttendee>{}
+
+// Document middleware
+attendeeSchema.post<IAttendee>('remove', async function (doc, next) {
+    await Event.deleteMany({ attendee: doc._id });
+    next();
+});
 
 export default model<IAttendee, IAttendeeModel>('Attendee', attendeeSchema);

@@ -40,6 +40,12 @@ const eventSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    actionId: {
+        type: String,
+    },
+    actionModel: {
+        type: String,
+    },
 }, {
     timestamps: true,
     minimize: false,

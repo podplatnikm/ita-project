@@ -3,6 +3,9 @@ import {
     Document, Model, model, Schema,
 } from 'mongoose';
 import validator from 'validator';
+import Attendee from './Attendee';
+import Event from './Event';
+import Meet, {IMeet} from './Meet';
 
 const userSchema = new Schema({
     displayName: {
@@ -110,6 +113,7 @@ userSchema.statics.findByCredentials = async function (email: string, password: 
 
     const user = await User.findOne({
         email: email.toLowerCase(),
+        method: 'local',
     });
 
     if (!user) {
@@ -131,6 +135,14 @@ userSchema.pre<IUser>('save', async function (next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 8);
     }
+    next();
+});
+
+// Document middleware
+userSchema.post<IUser>('remove', async function (doc, next) {
+    await Meet.deleteMany({ user: doc._id });
+    await Event.deleteMany({ user: doc._id });
+    await Attendee.deleteMany({ user: doc._id });
     next();
 });
 

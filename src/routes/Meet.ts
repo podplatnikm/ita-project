@@ -8,7 +8,9 @@ import {
     createParticipation,
     listMeetAttendees,
     vetoMeetAttendees,
-    updateMeet, geoSearchMeet,
+    updateMeet,
+    geoSearchMeet,
+    leaveMeet,
 } from '../controllers/Meet';
 import { checkValErr } from '../middleware/checkValErr';
 import { locationSchema } from '../entity/schemas/Meet';
@@ -49,6 +51,7 @@ router.put('/:id',
     checkValErr,
     updateMeet);
 router.delete('/:id', deleteMeet);
+router.delete('/:id/leave', leaveMeet);
 router.post('/:id/attendees',
     [body('message').isString().optional()],
     checkValErr,
@@ -65,5 +68,7 @@ router.put('/:meetId/attendees/:attendeeId',
     })],
     checkValErr,
     vetoMeetAttendees);
+
+
 
 export default router;

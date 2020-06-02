@@ -18,7 +18,15 @@ export async function listMeets(req: Request, res: Response, next: NextFunction)
     try {
         const { user } = req as any;
 
-        const myAccepted = await Attendee.find({ user: user._id, state: 'accepted' }).populate('meet');
+        const myAccepted = await Attendee.find({ user: user._id, state: 'accepted' }).populate({
+            path: 'meet',
+            model: Meet,
+            populate: {
+                path: 'user',
+                model: User,
+                select: 'firstName lastName displayName _id email',
+            },
+        });
 
         const otherMeets: any = [];
         myAccepted.forEach((attendee: any) => {
@@ -40,7 +48,7 @@ export async function createMeet(req: Request, res: Response, next: NextFunction
         const event = new Event({
             user: (req as any).user._id,
             meet: meet._id,
-            description: `You created a meet @ ${meet.locationName}.`,
+            description: `An event was created @ ${meet.locationName}.`,
             title: 'Meet created!',
             type: 'notification',
         });
@@ -71,7 +79,8 @@ export async function geoSearchMeet(req: Request, res: Response, next: NextFunct
         const { location } = req.body;
         const latlong = location.split(',');
         const coordinates = [parseFloat(latlong[1]), parseFloat(latlong[0])];
-
+        console.log('ere');
+        console.log(req.user);
         const meets = await Meet.aggregate([
             {
                 $geoNear: {
@@ -92,6 +101,27 @@ export async function geoSearchMeet(req: Request, res: Response, next: NextFunct
                         $nin: [(req as any).user._id],
                     },
                 },
+            }, {
+                $lookup: {
+                    from: User.collection.name,
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'user',
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    totalParticipants: 1,
+                    locationName: 1,
+                    location: 1,
+                    datetime: 1,
+                    description: 1,
+                    user: { $arrayElemAt: ['$user', 0] },
+                    createdAt: 1,
+                    distance: 1,
+                    updatedAt: 1,
+                },
             },
         ]);
         return res.send(meets);
@@ -104,13 +134,17 @@ export async function retrieveMeet(req: Request, res: Response, next: NextFuncti
     try {
         const { user } = req as any;
         const { id } = req.params;
-        const meet = await Meet.findOne({ user: user.id, _id: id });
+        const meet = await Meet.findOne({ _id: id });
 
         if (!meet) {
             throw new NotFoundError(notFound('Meet'));
         }
 
-        return res.status(OK).send(meetRetrieveSerializer(meet));
+        const events = await Event.find({ meet: meet._id });
+        const meetObject = meet.toObject();
+        meetObject.events = events;
+
+        return res.status(OK).send(meetRetrieveSerializer(meetObject));
     } catch (error) {
         return next(error);
     }
@@ -162,6 +196,23 @@ export async function deleteMeet(req: Request, res: Response, next: NextFunction
     }
 }
 
+export async function leaveMeet(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { user } = req as any;
+        const { id } = req.params;
+        const attendee = await Attendee.findOne({ meet: id, user: user._id });
+
+        if (!attendee) {
+            throw new NotFoundError(notFound('Attendee'));
+        }
+
+        await attendee.remove();
+        return res.status(NO_CONTENT).send();
+    } catch (error) {
+        return next(error);
+    }
+}
+
 export async function createParticipation(req: Request, res: Response, next: NextFunction) {
     try {
         const { message } = req.body;
@@ -200,6 +251,8 @@ export async function createParticipation(req: Request, res: Response, next: Nex
             title: `${user.displayName} requested to join.`,
             type: 'request',
             actionRequired: true,
+            actionId: attendee.id,
+            actionModel: 'attendee',
         });
 
         const session = await mongoose.startSession();
@@ -226,10 +279,10 @@ export async function listMeetAttendees(req: Request, res: Response, next: NextF
             query.state = state;
         }
 
-        const meet = await Meet.findById(meetId);
-        if (!meet || meet.user!.toString() !== user.id) {
-            throw new NotFoundError(notFound('Meet'));
-        }
+        // const meet = await Meet.findById(meetId);
+        // if (!meet || meet.user!.toString() !== user.id) {
+        //     throw new NotFoundError(notFound('Meet'));
+        // }
 
         const attendees = await Attendee.find(query);
 
@@ -290,6 +343,17 @@ export async function vetoMeetAttendees(req: Request, res: Response, next: NextF
             }
         });
         return res.send(attendeeRetrieveSerializer(attendee));
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function listMyAttendees(req: Request, res: Response, next: NextFunction) {
+    try {
+        console.log('here');
+        const { user } = req as any;
+        const attendees = await Attendee.find({ user: user._id });
+        return res.send(attendees);
     } catch (error) {
         return next(error);
     }

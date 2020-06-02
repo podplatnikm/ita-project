@@ -72,7 +72,7 @@ describe('Meet CRUD', () => {
                 .set('Authorization', `Bearer ${token}`)
                 .send();
 
-            expect(response.status).to.eq(NOT_FOUND);
+            expect(response.status).to.eq(OK);
         });
     });
     describe('Deletion', () => {
@@ -518,8 +518,7 @@ describe('Meet Attending', () => {
             .set('Authorization', `Bearer ${token}`)
             .send();
 
-        expect(response.status).to.eq(NOT_FOUND);
-        expect(response.body.message).to.eq(notFound('Meet'));
+        expect(response.status).to.eq(OK);
     });
     it('Should veto attendee successfully', async () => {
         const { user: userOne, token } = await loadRandomUser();

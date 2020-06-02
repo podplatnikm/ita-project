@@ -33,7 +33,9 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
             return res.status(BAD_REQUEST).send({ success: false, message: requestBodyInvalid });
         }
 
-        updates.forEach((update) => { user[update] = req.body[update]; });
+        updates.forEach((update) => {
+            user[update] = req.body[update];
+        });
 
         const emailExists = await User.findOne({ email: user.email.toLowerCase() });
         if (emailExists && emailExists.id !== user.id) {

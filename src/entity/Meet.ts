@@ -2,6 +2,9 @@ import {
     model, Model, Schema, Document,
 } from 'mongoose';
 import { IUser } from './User';
+import bcrypt from 'bcryptjs';
+import Attendee from './Attendee';
+import Event from './Event';
 
 const meetSchema = new Schema({
     user: {
@@ -65,6 +68,14 @@ export interface IMeetModel extends Model<IMeet> {}
 
 meetSchema.index({
     location: '2dsphere',
+});
+
+
+// Document middleware
+meetSchema.post<IMeet>('remove', async function (doc, next) {
+    await Attendee.deleteMany({ meet: doc._id });
+    await Event.deleteMany({ meet: doc._id });
+    next();
 });
 
 export default model<IMeet, IMeetModel>('Meet', meetSchema);

@@ -8,6 +8,6 @@ export function meetListSerializer(meet: IMeet[]) {
 }
 
 export function meetRetrieveSerializer(meet: IMeet) {
-    const fields = ['_id', 'user', 'location', 'locationName', 'datetime', 'description', 'totalParticipants', 'createdAt'];
+    const fields = ['_id', 'user', 'location', 'locationName', 'datetime', 'description', 'totalParticipants', 'createdAt', 'events'];
     return serialize(meet, fields);
 }

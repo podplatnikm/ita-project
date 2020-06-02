@@ -2,7 +2,7 @@ import { IUser } from '../User';
 import serialize from './common';
 
 export function userRetrieveSerializer(user: IUser) {
-    const fields = ['id', 'email', 'displayName', 'firstName', 'lastName', 'active', 'membership', 'receivePushNotifications', 'hideEmail', 'hideMe', 'maxDistanceKm', 'favourites'];
+    const fields = ['id', 'email', 'displayName', 'firstName', 'lastName', 'active', 'membership', 'receivePushNotifications', 'hideEmail', 'hideMe', 'maxDistanceKm', 'favourites', 'createdAt'];
     return serialize(user, fields);
 }
 

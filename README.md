@@ -18,10 +18,9 @@ Celotni seznam je navoljo v ```package.json```
 * ~~Dodeljevanje vlog~~
 * ~~CRUD uporabnikov~~
 * ~~CRUD obiskov~~
-* Iskanje oviskov
-* Pridružitev obiskom
-* veto na pridružitev
-* ??
+* ~~Iskanje oviskov~~
+* ~~Pridružitev obiskom~~
+* ~~veto na pridružitev~~
 
 
 
@@ -37,15 +36,13 @@ Skozi lastno implementacijo in ostala uporabljena ogrodja sem identificiral nasl
 + Basic CRUD operations (1)
 + dvanced business logic (2)
 
-~~mogoče se motim kje ?~~
-
 ## Testiranje
 | # \ Modul      | Auth | User | Admin | Meet | Skupaj |
 |----------------|------|------|-------|------|--------|
-| Število testov | 6    | 13   | 8     | 7    | 34     |
+| Število testov | 6    | 13   | 8     | 26    | 53     |
 
 Ogrodja:
- * [mocha](https://www.npmjs.com/package/mocha) - Celovito ogrodje za testiranje
+ * [mocha](https://www.npmjs.com/package/mocha) - Celovpito ogrodje za testiranje
  * [chai](https://www.npmjs.com/package/chai) - Ogrodje za enačenja in pričakovanja (asserts, expect)
  * [supertest](https://www.npmjs.com/package/supertest) - Ogrodje 'proxy' za zahteve
  * [nyc - Istanbul](https://www.npmjs.com/package/nyc) - Ogrodje pokritost
